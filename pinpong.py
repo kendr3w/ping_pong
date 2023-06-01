@@ -36,12 +36,17 @@ class Ball(GameSprite):
 
 #найти фон
 #background = transform.scale(image.load('galaxy.jpg'), (700, 500))
-background = (200, 255, 255)
-window = background.fill()
+
+
+
+
 #создание главного окна
 win_height = 500
 win_width = 700 
 window = display.set_mode((win_width, win_height))
+background = (200, 255, 255)
+window.fill(background)
+
 
 #создание экземпляров классов
 racket1 = Racket("racket1.png", 1, 200, 40, 100, 1)
@@ -63,7 +68,7 @@ while not gameover:
             gameover = True
     #управление ракетками
     if finish:
-        window.blit(background(0, 0))
+        window.blit(background)
 
     racket2.update_left()
     racket1.update_right()
