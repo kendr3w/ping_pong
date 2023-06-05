@@ -1,5 +1,5 @@
 from pygame import *
-#создание главного класса
+#основной класс
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, size_x, size_y, player_speed):
         super().__init__()
@@ -12,72 +12,73 @@ class GameSprite(sprite.Sprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
-class Racket(GameSprite):
-    def update_left(self): #движение ракетки
-        keys_pressed = key.get_pressed()
-        if keys_pressed[K_UP] and self.rect.y > 0:
+class Player(GameSprite):
+    def update_l(self): #движение ракетки
+        keys = key.get_pressed()
+        if keys[K_UP] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys_pressed[K_DOWN] and self.rect.y < win_height - 100:
+        if keys[K_DOWN] and self.rect.y < win_height - 80:
             self.rect.y += self.speed
-    def update_right(self):
-        keys_pressed = key.get_pressed()
-        if keys_pressed[K_w] and self.rect.y < win_height - 40:
+    def update_r(self):
+        keys = key.get_pressed()
+        if keys[K_w] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys_pressed[K_s] and self.rect.y > win_width - 100:
+        if keys[K_s] and self.rect.y < win_height-80:
             self.rect.y += self.speed
-
-class Ball(GameSprite):
-    def update(self):
-        self.rect.y += self.speed
-        if self.rect.y > win_height:
-            self.rect.y = 0
-            self.rect.x = 0
-
-
-#найти фон
-#background = transform.scale(image.load('galaxy.jpg'), (700, 500))
-
-
-
-
-#создание главного окна
-win_height = 500
-win_width = 700 
+#фон
+back = (200, 255, 255)
+win_width= 600
+win_height= 500
 window = display.set_mode((win_width, win_height))
-background = (200, 255, 255)
-window.fill(background)
-
-
-#создание экземпляров классов
-racket1 = Racket("racket1.png", 1, 200, 40, 100, 1)
-racket2 = Racket("racket2.png", 650, 200, 40, 100, 1)
-#ball = Ball()
-
-
-#отобразить ракетки
+window.fill(back)
+#игровые функции
+game = True
+finish = False
+clock = time.Clock()
+FPS = 60
+#экземпляры класса
+racket1 = Player('racket2.png', 30, 200, 50, 150, 4)
+racket2 = Player('racket1.png', 520, 200, 50, 150, 4)
+ball = GameSprite('ball.png', 200, 200, 50, 50, 4)
+#текст (поражение 1 и 2)
+font.init()
+font=font.SysFont(None, 35)
+lose1=font.render('Player 1 lose', True,(100, 0, 0))
+lose2=font.render('Player 2 lose', True,(100, 0, 0))
+#переменные скорости
+speed_x = 3
+speed_y = 3
 
 #игровой цикл
-finish = True
-gameover = False
-while not gameover:
-
-
-    #задать движение мяча
+while game:
+    #закрытие через крест
     for e in event.get():
         if e.type == QUIT:
-            gameover = True
-    #управление ракетками
-    if finish:
-        window.blit(background)
+            game = False
 
-    racket2.update_left()
-    racket1.update_right()
-    
+    if finish != True:
+        window.fill(back)
+        racket1.update_l()
+        racket2.update_r()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+        #отталкивание мяча
+        if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
+            speed_x *= -1
+            speed_y *= -1
+        if ball.rect.y > win_height - 50 or ball.rect.y < 0:
+            speed_y *= -1
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1,(200,200))
+            finish = True
+        if ball.rect.x > win_width:
+            finish = True
+            window.blit(lose2,(200,200))
+            finish = True
+
     racket1.reset()
-    
     racket2.reset()
-    
-    #поражение
-
+    ball.reset()
     display.update()
-time.delay(50)
+    clock.tick(FPS)
